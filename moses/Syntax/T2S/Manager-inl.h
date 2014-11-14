@@ -94,7 +94,7 @@ void Manager<RuleMatcher>::Decode()
 
   // Construct the InputTree.
   InputTreeBuilder builder;
-  builder.Build(m_source, m_inputTree);
+  builder.Build(m_source, "Q", m_inputTree);
 
   // Initialize the stacks.
   InitializeStacks();
@@ -119,9 +119,6 @@ void Manager<RuleMatcher>::Decode()
       continue;
     }
 
-//std::cerr << std::endl;
-//std::cerr << "DEBUG: about to match rules for " << node.pvertex.symbol << std::endl;
-
     // Call the rule matchers to generate PHyperedges for this node and
     // convert each one to a SHyperedgeBundle (via the callback).  The
     // callback prunes the SHyperedgeBundles and keeps the best ones (up
@@ -144,8 +141,6 @@ void Manager<RuleMatcher>::Decode()
       assert(bundles.Size() == 1);
     }
 
-//std::cerr << "DEBUG: bundle count = " << bundles.Size() << std::endl;
-
     // Use cube pruning to extract SHyperedges from SHyperedgeBundles and
     // collect the SHyperedges in a buffer.
     CubeQueue cubeQueue(bundles.Begin(), bundles.End());
@@ -160,8 +155,6 @@ void Manager<RuleMatcher>::Decode()
       buffer.push_back(hyperedge);
       ++count;
     }
-
-//std::cerr << "DEBUG: SHyperedge count = " << buffer.size() << std::endl;
 
     // Recombine SVertices and sort into a stack.
     SVertexStack &stack = m_stackMap[&(node.pvertex)];

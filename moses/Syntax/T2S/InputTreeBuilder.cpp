@@ -14,14 +14,18 @@ InputTreeBuilder::InputTreeBuilder()
 {
 }
 
-void InputTreeBuilder::Build(const TreeInput &in, InputTree &out)
+void InputTreeBuilder::Build(const TreeInput &in,
+                             const std::string &topLevelLabel,
+                             InputTree &out)
 {
-  CreateNodes(in, out);
+  CreateNodes(in, topLevelLabel, out);
   ConnectNodes(out);
 }
 
 // Create the InputTree::Node objects but do not connect them.
-void InputTreeBuilder::CreateNodes(const TreeInput &in, InputTree &out)
+void InputTreeBuilder::CreateNodes(const TreeInput &in,
+                                   const std::string &topLevelLabel,
+                                   InputTree &out)
 {
   // Get the input sentence word count.  This includes the <s> and </s> symbols.
   const std::size_t numWords = in.GetSize();
@@ -31,7 +35,7 @@ void InputTreeBuilder::CreateNodes(const TreeInput &in, InputTree &out)
   const std::vector<XMLParseOutput> &xmlNodes = in.GetNonTerminalsPostOrder();
 
   // Copy the parse tree non-terminal nodes, but offset the ranges by 1 (to
-  // allow for the <s> symbol at position 0) and add a top-level node.
+  // allow for the <s> symbol at position 0).
   std::vector<XMLParseOutput> nonTerms;
   nonTerms.reserve(xmlNodes.size()+1);
   for (std::vector<XMLParseOutput>::const_iterator p = xmlNodes.begin();
@@ -40,8 +44,8 @@ void InputTreeBuilder::CreateNodes(const TreeInput &in, InputTree &out)
     std::size_t end = p->m_range.GetEndPos();
     nonTerms.push_back(XMLParseOutput(p->m_label, WordsRange(start+1, end+1)));
   }
-  // FIXME Label won't always be "Q"!
-  nonTerms.push_back(XMLParseOutput("Q", WordsRange(0, numWords-1)));
+  // Add a top-level node that also covers <s> and </s>.
+  nonTerms.push_back(XMLParseOutput(topLevelLabel, WordsRange(0, numWords-1)));
 
   // Allocate space for the InputTree nodes.  In the case of out.nodes, this
   // step is essential because once created the PVertex objects must not be

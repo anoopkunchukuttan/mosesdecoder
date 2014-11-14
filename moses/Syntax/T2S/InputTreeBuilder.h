@@ -19,11 +19,12 @@ class InputTreeBuilder
  public:
   InputTreeBuilder();
 
-  // Constructs a Moses::T2S::InputTree given a Moses::TreeInput.
-  void Build(const TreeInput &, InputTree &);
+  // Constructs a Moses::T2S::InputTree given a Moses::TreeInput and a label
+  // for the top-level node (which covers <s> and </s>).
+  void Build(const TreeInput &, const std::string &, InputTree &);
 
  private:
-  void CreateNodes(const TreeInput &, InputTree &);
+  void CreateNodes(const TreeInput &, const std::string &, InputTree &);
   void ConnectNodes(InputTree &);
 
   const std::vector<FactorType> &m_outputFactorOrder;

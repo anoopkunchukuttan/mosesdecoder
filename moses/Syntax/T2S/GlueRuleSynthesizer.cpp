@@ -60,8 +60,9 @@ TargetPhrase *GlueRuleSynthesizer::SynthesizeTargetPhrase(
     alignmentSS << i << "-" << i << " ";
   }
 
-  float score = FloorScore(TransformScore(1.0f));
-
+  // Assign the lowest possible score so that glue rules are only used when
+  // absolutely required.
+  float score = LOWEST_SCORE;
   targetPhrase->GetScoreBreakdown().Assign(&unknownWordPenaltyProducer, score);
   targetPhrase->EvaluateInIsolation(sourceRhs);
   Word *targetLhs = new Word(staticData.GetOutputDefaultNonTerminal());
