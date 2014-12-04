@@ -32,6 +32,13 @@ class OxLM : public LanguageModelSingleFactor {
 
   virtual void CleanUpAfterSentenceProcessing(const InputType& source);
 
+ private:
+  double GetScore(int word, const vector<int>& context) const;
+
+  void loadPersistentCache(const string& cache_file) const;
+
+  void savePersistentCache(const string& cache_file) const;
+
  protected:
   Model model;
   boost::shared_ptr<OxLMMapper> mapper;
@@ -39,6 +46,11 @@ class OxLM : public LanguageModelSingleFactor {
   int kSTART;
   int kSTOP;
   int kUNKNOWN;
+
+  bool normalized;
+
+  bool posBackOff;
+  FactorType posFactorType;
 
   bool persistentCache;
   mutable boost::thread_specific_ptr<oxlm::QueryCache> cache;

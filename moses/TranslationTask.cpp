@@ -94,7 +94,7 @@ void TranslationTask::RunPb()
   // output word graph
   if (m_ioWrapper.GetWordGraphCollector()) {
     ostringstream out;
-    fix(out,PRECISION);
+    FixPrecision(out,PRECISION);
     manager.GetWordGraph(m_source->GetTranslationId(), out);
     m_ioWrapper.GetWordGraphCollector()->Write(m_source->GetTranslationId(), out.str());
   }
@@ -102,7 +102,7 @@ void TranslationTask::RunPb()
   // output search graph
   if (m_ioWrapper.GetSearchGraphOutputCollector()) {
     ostringstream out;
-    fix(out,PRECISION);
+    FixPrecision(out,PRECISION);
     manager.OutputSearchGraph(m_source->GetTranslationId(), out);
     m_ioWrapper.GetSearchGraphOutputCollector()->Write(m_source->GetTranslationId(), out.str());
 
@@ -121,12 +121,16 @@ void TranslationTask::RunPb()
   // Output search graph in HTK standard lattice format (SLF)
   if (m_outputSearchGraphSLF) {
     stringstream fileName;
-    fileName << staticData.GetParam("output-search-graph-slf")[0] << "/" << m_source->GetTranslationId() << ".slf";
+
+    string dir;
+    staticData.GetParameter().SetParameter<string>(dir, "output-search-graph-slf", "");
+
+    fileName << dir << "/" << m_source->GetTranslationId() << ".slf";
     ofstream *file = new ofstream;
     file->open(fileName.str().c_str());
     if (file->is_open() && file->good()) {
       ostringstream out;
-      fix(out,PRECISION);
+      FixPrecision(out,PRECISION);
       manager.OutputSearchGraphAsSLF(m_source->GetTranslationId(), out);
       *file << out.str();
       file -> flush();
@@ -147,7 +151,7 @@ void TranslationTask::RunPb()
   if (m_ioWrapper.GetSingleBestOutputCollector()) {
     ostringstream out;
     ostringstream debug;
-    fix(debug,PRECISION);
+    FixPrecision(debug,PRECISION);
 
     // all derivations - send them to debug stream
     if (staticData.PrintAllDerivations()) {
@@ -171,7 +175,9 @@ void TranslationTask::RunPb()
           m_ioWrapper.OutputInput(out, bestHypo);
           out << "||| ";
         }
-        if (staticData.GetParam("print-id").size() && Scan<bool>(staticData.GetParam("print-id")[0]) ) {
+
+        const PARAM_VEC *params = staticData.GetParameter().GetParam("print-id");
+        if (params && params->size() && Scan<bool>(params->at(0)) ) {
           out << m_source->GetTranslationId() << " ";
         }
 
@@ -271,29 +277,15 @@ void TranslationTask::RunPb()
   additionalReportingTime.start();
 
   // output n-best list
-  if (m_ioWrapper.GetNBestOutputCollector() && !staticData.UseLatticeMBR()) {
-    TrellisPathList nBestList;
-    ostringstream out;
-    manager.CalcNBest(staticData.GetNBestSize(), nBestList,staticData.GetDistinctNBest());
-    m_ioWrapper.OutputNBest(out, nBestList, staticData.GetOutputFactorOrder(), m_source->GetTranslationId(),
-                staticData.GetReportSegmentation());
-    m_ioWrapper.GetNBestOutputCollector()->Write(m_source->GetTranslationId(), out.str());
-  }
+  manager.OutputNBest(m_ioWrapper.GetNBestOutputCollector());
 
   //lattice samples
-  if (m_ioWrapper.GetLatticeSamplesCollector()) {
-    TrellisPathList latticeSamples;
-    ostringstream out;
-    manager.CalcLatticeSamples(staticData.GetLatticeSamplesSize(), latticeSamples);
-    m_ioWrapper.OutputNBest(out,latticeSamples, staticData.GetOutputFactorOrder(), m_source->GetTranslationId(),
-                staticData.GetReportSegmentation());
-    m_ioWrapper.GetLatticeSamplesCollector()->Write(m_source->GetTranslationId(), out.str());
-  }
+  manager.OutputLatticeSamples(m_ioWrapper.GetLatticeSamplesCollector());
 
   // detailed translation reporting
   if (m_ioWrapper.GetDetailedTranslationCollector()) {
     ostringstream out;
-    fix(out,PRECISION);
+    FixPrecision(out,PRECISION);
     TranslationAnalysis::PrintTranslationAnalysis(out, manager.GetBestHypothesis());
     m_ioWrapper.GetDetailedTranslationCollector()->Write(m_source->GetTranslationId(),out.str());
   }
@@ -363,8 +355,9 @@ void TranslationTask::RunChart()
 	  } else {
 		m_ioWrapper.OutputBestNone(translationId);
 	  }
-	  if (staticData.GetNBestSize() > 0)
-		m_ioWrapper.OutputNBestList(nbest, translationId);
+
+	  manager.OutputNBest(m_ioWrapper.GetNBestOutputCollector());
+
 	  return;
 	}
 
@@ -413,16 +406,7 @@ void TranslationTask::RunChart()
 	}
 
 	// n-best
-	size_t nBestSize = staticData.GetNBestSize();
-	if (nBestSize > 0) {
-	  VERBOSE(2,"WRITING " << nBestSize << " TRANSLATION ALTERNATIVES TO " << staticData.GetNBestFilePath() << endl);
-	  std::vector<boost::shared_ptr<ChartKBestExtractor::Derivation> > nBestList;
-	  manager.CalcNBest(nBestSize, nBestList,staticData.GetDistinctNBest());
-	  m_ioWrapper.OutputNBestList(nBestList, translationId);
-	  IFVERBOSE(2) {
-		PrintUserTime("N-Best Hypotheses Generation Time:");
-	  }
-	}
+	manager.OutputNBest(m_ioWrapper.GetNBestOutputCollector());
 
 	if (staticData.GetOutputSearchGraph()) {
 	  std::ostringstream out;
