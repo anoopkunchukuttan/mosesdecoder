@@ -92,7 +92,7 @@ bool RuleTrieLoader::Load(const std::vector<FactorType> &input,
       UTIL_THROW_IF2(isnan(score), "Bad score " << *s << " on line " << count);
       scoreVector.push_back(FloorScore(TransformScore(score)));
     }
-    const size_t numScoreComponents = ff.GetNumScoreComponents();
+    const std::size_t numScoreComponents = ff.GetNumScoreComponents();
     if (scoreVector.size() != numScoreComponents) {
       UTIL_THROW2("Size of scoreVector != number (" << scoreVector.size() << "!="
     		  	  << numScoreComponents << ") of score components on line " << count);

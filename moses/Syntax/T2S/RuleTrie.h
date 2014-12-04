@@ -16,8 +16,6 @@
 #include "moses/Util.h"
 #include "moses/Word.h"
 
-#include "RuleTrie.h"
-
 namespace Moses
 {
 namespace Syntax
@@ -43,8 +41,8 @@ class RuleTrie: public RuleTable
 
     bool HasRules() const { return !m_targetPhraseCollections.empty(); }
 
-    void Prune(size_t tableLimit);
-    void Sort(size_t tableLimit);
+    void Prune(std::size_t tableLimit);
+    void Sort(std::size_t tableLimit);
 
     Node *GetOrCreateChild(const Word &sourceTerm);
     Node *GetOrCreateNonTerminalChild(const Word &targetNonTerm);
@@ -73,8 +71,6 @@ class RuleTrie: public RuleTable
   RuleTrie(const RuleTableFF *ff) : RuleTable(ff) {}
 
   const Node &GetRootNode() const { return m_root; }
-
-  bool HasPreterminalRule(const Word &) const;
 
  private:
   friend class RuleTrieCreator;

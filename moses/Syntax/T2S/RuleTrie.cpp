@@ -39,7 +39,7 @@ void RuleTrie::Node::Prune(std::size_t tableLimit)
   }
 }
 
-void RuleTrie::Node::Sort(size_t tableLimit)
+void RuleTrie::Node::Sort(std::size_t tableLimit)
 {
   // Recusively sort child nodes.
   for (SymbolMap::iterator p = m_sourceTermMap.begin();
@@ -112,7 +112,7 @@ RuleTrie::Node &RuleTrie::GetOrCreateNode(const Phrase &sourceRHS)
   const std::size_t size = sourceRHS.GetSize();
 
   Node *currNode = &m_root;
-  for (size_t pos = 0 ; pos < size ; ++pos) {
+  for (std::size_t pos = 0 ; pos < size ; ++pos) {
     const Word& word = sourceRHS.GetWord(pos);
 
     if (word.IsNonTerminal()) {
@@ -132,13 +132,6 @@ void RuleTrie::SortAndPrune(std::size_t tableLimit)
   if (tableLimit) {
     m_root.Sort(tableLimit);
   }
-}
-
-bool RuleTrie::HasPreterminalRule(const Word &w) const
-{
-  const Node::SymbolMap &map = m_root.GetTerminalMap();
-  Node::SymbolMap::const_iterator p = map.find(w);
-  return p != map.end() && p->second.HasRules();
 }
 
 }  // namespace T2S

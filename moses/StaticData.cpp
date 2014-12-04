@@ -400,7 +400,7 @@ bool StaticData::LoadData(Parameter *parameter)
   m_parameter->SetParameter(m_s2tParsingAlgorithm, "s2t-parsing-algorithm", RecursiveCYKPlus);
 
   // T2S decoder
-  SetBooleanParameter( &m_useT2SDecoder, "t2s", false );
+  m_parameter->SetParameter(m_useT2SDecoder, "t2s", false);
 
   // Compact phrase table and reordering model
   m_parameter->SetParameter(m_minphrMemory, "minphr-memory", false );
