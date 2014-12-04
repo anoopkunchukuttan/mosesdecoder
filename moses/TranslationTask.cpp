@@ -10,6 +10,7 @@
 #include "moses/Incremental.h"
 #include "mbr.h"
 
+#include "moses/Syntax/F2S/RuleMatcherHyperTree.h"
 #include "moses/Syntax/S2T/Parsers/RecursiveCYKPlusParser/RecursiveCYKPlusParser.h"
 #include "moses/Syntax/S2T/Parsers/Scope3Parser/Parser.h"
 #include "moses/Syntax/T2S/RuleMatcherCallback.h"
@@ -318,7 +319,12 @@ void TranslationTask::RunChart()
 
 	VERBOSE(2,"\nTRANSLATING(" << translationId << "): " << *m_source);
 
-    if (staticData.UseS2TDecoder()) {
+    if (staticData.UseF2SDecoder()) {
+      typedef Syntax::T2S::RuleMatcherCallback Callback;
+      typedef Syntax::F2S::RuleMatcherHyperTree<Callback> RuleMatcher;
+      DecodeF2S<RuleMatcher>();
+      return;
+    } else if (staticData.UseS2TDecoder()) {
       S2TParsingAlgorithm algorithm = staticData.GetS2TParsingAlgorithm();
       if (algorithm == RecursiveCYKPlus) {
         typedef Syntax::S2T::EagerParserCallback Callback;

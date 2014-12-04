@@ -199,6 +199,7 @@ protected:
   FactorType m_placeHolderFactor;
   bool m_useLegacyPT;
   bool m_defaultNonTermOnlyForEmptyRange;
+  bool m_useF2SDecoder;
   bool m_useS2TDecoder;
   bool m_useT2SDecoder;
   S2TParsingAlgorithm m_s2tParsingAlgorithm;
@@ -768,6 +769,9 @@ public:
   }
   bool UseT2SDecoder() const {
     return m_useT2SDecoder;
+  }
+  bool UseF2SDecoder() const {
+    return m_useF2SDecoder;
   }
   S2TParsingAlgorithm GetS2TParsingAlgorithm() const {
     return m_s2tParsingAlgorithm;

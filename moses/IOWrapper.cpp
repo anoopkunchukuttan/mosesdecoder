@@ -1310,7 +1310,8 @@ void IOWrapper::OutputDetailedTranslationReport(const Syntax::SHyperedge *best,
   // TODO Merge DerivationWriter classes.
   if (StaticData::Instance().UseS2TDecoder()) {
     Syntax::S2T::DerivationWriter::Write(*best, translationId, out);
-  } else if (StaticData::Instance().UseT2SDecoder()) {
+  } else if (StaticData::Instance().UseT2SDecoder() ||
+             StaticData::Instance().UseF2SDecoder()) {
     Syntax::T2S::DerivationWriter::Write(*best, translationId, out);
   }
   UTIL_THROW_IF2(m_detailedTranslationCollector == NULL,

@@ -6,6 +6,8 @@
 #include "moses/Syntax/S2T/RuleTrieScope3.h"
 #include "moses/Syntax/T2S/RuleTrie.h"
 #include "moses/Syntax/T2S/RuleTrieLoader.h"
+#include "moses/Syntax/F2S/HyperTree.h"
+#include "moses/Syntax/F2S/HyperTreeLoader.h"
 
 namespace Moses
 {
@@ -49,9 +51,14 @@ void RuleTableFF::Load()
     T2S::RuleTrieLoader loader;
     loader.Load(m_input, m_output, m_filePath, *this, *trie);
     m_table = trie;
+  } else if (staticData.UseF2SDecoder()) {
+    F2S::HyperTree *trie = new F2S::HyperTree(this);
+    F2S::HyperTreeLoader loader;
+    loader.Load(m_input, m_output, m_filePath, *this, *trie);
+    m_table = trie;
   } else {
     UTIL_THROW2(
-      "ERROR: RuleTableFF currently only supports S2T and T2S decoders");
+      "ERROR: RuleTableFF currently only supports S2T, T2S, and F2S decoders");
   }
 }
 

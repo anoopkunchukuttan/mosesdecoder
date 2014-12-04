@@ -63,6 +63,7 @@ StaticData::StaticData()
   ,m_lmEnableOOVFeature(false)
   ,m_isAlwaysCreateDirectTranslationOption(false)
   ,m_currentWeightSetting("default")
+  ,m_useF2SDecoder(false)
   ,m_useS2TDecoder(false)
   ,m_useT2SDecoder(false)
   ,m_treeStructure(NULL)
@@ -394,6 +395,9 @@ bool StaticData::LoadData(Parameter *parameter)
 
   m_parameter->SetParameter(m_defaultNonTermOnlyForEmptyRange, "default-non-term-for-empty-range-only", false );
   m_parameter->SetParameter(m_printNBestTrees, "n-best-trees", false );
+
+  // F2S decoder
+  m_parameter->SetParameter(m_useF2SDecoder, "f2s", false);
 
   // S2T decoder
   m_parameter->SetParameter(m_useS2TDecoder, "s2t", false );
@@ -1093,7 +1097,9 @@ std::map<std::string, std::string> StaticData::OverrideFeatureNames()
 		}
 	}
 
-  if (m_useS2TDecoder || m_useT2SDecoder) {
+  // FIXME Does this make sense for F2S?  Perhaps it should be changed once
+  // FIXME the pipeline uses RuleTable consistently.
+  if (m_useS2TDecoder || m_useT2SDecoder || m_useF2SDecoder) {
     // Automatically override PhraseDictionary{Memory,Scope3}.  This will
     // have to change if the FF parameters diverge too much in the future,
     // but for now it makes switching between the old and new decoders much
