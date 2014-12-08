@@ -30,9 +30,17 @@ void InputTreeBuilder::CreateNodes(const TreeInput &in,
   // Get the input sentence word count.  This includes the <s> and </s> symbols.
   const std::size_t numWords = in.GetSize();
 
-  // Get the parse tree non-terminal nodes.  This does not include the top-level
-  // node that covers <s> and </s>.
-  const std::vector<XMLParseOutput> &xmlNodes = in.GetNonTerminalsPostOrder();
+  // Get the parse tree non-terminal nodes.  The parse tree covers the original
+  // sentence only, not the <s> and </s> symbols, so at this point there is
+  // no top-level node.
+  std::vector<XMLParseOutput> xmlNodes = in.GetLabelledSpans();
+
+  // Sort the XML nodes into post-order.  Prior to sorting they will be in the
+  // order that TreeInput created them.  Usually that will be post-order, but
+  // if, for example, the tree was binarized by relax-parse then it won't be.
+  // In all cases, we assume that if two nodes cover the same span then the
+  // first one is the lowest.
+  SortXmlNodesIntoPostOrder(xmlNodes);
 
   // Copy the parse tree non-terminal nodes, but offset the ranges by 1 (to
   // allow for the <s> symbol at position 0).
@@ -54,7 +62,7 @@ void InputTreeBuilder::CreateNodes(const TreeInput &in,
   out.nodes.reserve(numWords + nonTerms.size());
   out.nodesAtPos.resize(numWords);
 
-  // First create the InputTree::Node objects but do not connect them.
+  // Create the InputTree::Node objects.
   int prevStart = -1;
   int prevEnd = -1;
   for (std::vector<XMLParseOutput>::const_iterator p = nonTerms.begin();
@@ -112,6 +120,49 @@ void InputTreeBuilder::ConnectNodes(InputTree &out)
     InputTree::Node &child = out.nodes[i];
     InputTree::Node &parent = *(parents[i]);
     parent.children.push_back(&child);
+  }
+}
+
+void InputTreeBuilder::SortXmlNodesIntoPostOrder(
+    std::vector<XMLParseOutput> &nodes)
+{
+  // Sorting is based on both the value of a node and its original position,
+  // so for each node construct a pair containing both pieces of information.
+  std::vector<std::pair<XMLParseOutput *, int> > pairs;
+  pairs.reserve(nodes.size());
+  for (std::size_t i = 0; i < nodes.size(); ++i) {
+    pairs.push_back(std::make_pair(&(nodes[i]), i));
+  }
+
+  // Sort the pairs.
+  std::sort(pairs.begin(), pairs.end(), PostOrderComp);
+
+  // Replace the original node sequence with the correctly sorted sequence.
+  std::vector<XMLParseOutput> tmp;
+  tmp.reserve(nodes.size());
+  for (std::size_t i = 0; i < pairs.size(); ++i) {
+    tmp.push_back(nodes[pairs[i].second]);
+  }
+  nodes.swap(tmp);
+}
+
+// Comparison function used by SortXmlNodesIntoPostOrder.
+bool InputTreeBuilder::PostOrderComp(const std::pair<XMLParseOutput *, int> &x,
+                                     const std::pair<XMLParseOutput *, int> &y)
+{
+  std::size_t xStart = x.first->m_range.GetStartPos();
+  std::size_t xEnd = x.first->m_range.GetEndPos();
+  std::size_t yStart = y.first->m_range.GetStartPos();
+  std::size_t yEnd = y.first->m_range.GetEndPos();
+
+  if (xEnd == yEnd) {
+    if (xStart == yStart) {
+      return x.second < y.second;
+    } else {
+      return xStart > yStart;
+    }
+  } else {
+    return xEnd < yEnd;
   }
 }
 

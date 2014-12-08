@@ -248,8 +248,8 @@ int TreeInput::Read(std::istream& in,const std::vector<FactorType>& factorOrder)
   // remove extra spaces
   //line = Trim(line);
 
-  m_nonTerminalsPostOrder.clear();
-  ProcessAndStripXMLTags(line, m_nonTerminalsPostOrder, m_xmlOptions);
+  m_labelledSpans.clear();
+  ProcessAndStripXMLTags(line, m_labelledSpans, m_xmlOptions);
 
   // do words 1st - hack
   stringstream strme;
@@ -267,7 +267,7 @@ int TreeInput::Read(std::istream& in,const std::vector<FactorType>& factorOrder)
 
   // do source labels
   vector<XMLParseOutput>::const_iterator iterLabel;
-  for (iterLabel = m_nonTerminalsPostOrder.begin(); iterLabel != m_nonTerminalsPostOrder.end(); ++iterLabel) {
+  for (iterLabel = m_labelledSpans.begin(); iterLabel != m_labelledSpans.end(); ++iterLabel) {
     const XMLParseOutput &labelItem = *iterLabel;
     const WordsRange &range = labelItem.m_range;
     const string &label = labelItem.m_label;

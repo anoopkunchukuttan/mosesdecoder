@@ -24,8 +24,12 @@ class InputTreeBuilder
   void Build(const TreeInput &, const std::string &, InputTree &);
 
  private:
+  static bool PostOrderComp(const std::pair<XMLParseOutput *, int> &,
+                            const std::pair<XMLParseOutput *, int> &);
+
   void CreateNodes(const TreeInput &, const std::string &, InputTree &);
   void ConnectNodes(InputTree &);
+  void SortXmlNodesIntoPostOrder(std::vector<XMLParseOutput> &);
 
   const std::vector<FactorType> &m_outputFactorOrder;
 };

@@ -31,7 +31,7 @@ class TreeInput : public Sentence
 
 protected:
   std::vector<std::vector<NonTerminalSet> > m_sourceChart;
-  std::vector<XMLParseOutput> m_nonTerminalsPostOrder;
+  std::vector<XMLParseOutput> m_labelledSpans;
 
   void AddChartLabel(size_t startPos, size_t endPos, const std::string &label
                      ,const std::vector<FactorType>& factorOrder);
@@ -64,10 +64,10 @@ public:
     return m_sourceChart[startPos][endPos - startPos];
   }
 
-  //! Get the non-terminals in post-order
-  const std::vector<XMLParseOutput> GetNonTerminalsPostOrder() const
+  //! Get the XMLParseOutput objects in the order they were created.
+  const std::vector<XMLParseOutput> &GetLabelledSpans() const
   {
-    return m_nonTerminalsPostOrder;
+    return m_labelledSpans;
   }
 };
 
