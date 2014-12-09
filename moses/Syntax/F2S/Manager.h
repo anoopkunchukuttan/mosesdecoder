@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
+#include "moses/BaseManager.h"
 #include "moses/Syntax/KBestExtractor.h"
 #include "moses/Syntax/SVertexStack.h"
 #include "moses/Syntax/T2S/PVertexToStackMap.h"
@@ -28,7 +29,7 @@ namespace F2S
 {
 
 template<typename RuleMatcher>
-class Manager
+class Manager : public BaseManager
 {
  public:
   Manager(const TreeInput &);
@@ -45,6 +46,24 @@ class Manager
 
   const std::set<Word> &GetUnknownWords() const { return m_oovs; }
 
+  void OutputNBest(OutputCollector *collector) const;
+  void OutputLatticeSamples(OutputCollector *collector) const
+  {}
+  void OutputAlignment(OutputCollector *collector) const
+  {}
+  void OutputDetailedTranslationReport(OutputCollector *collector) const;
+  void OutputUnknowns(OutputCollector *collector) const;
+  void OutputDetailedTreeFragmentsTranslationReport(OutputCollector *collector) const
+  {}
+  void OutputWordGraph(OutputCollector *collector) const
+  {}
+  void OutputSearchGraph(OutputCollector *collector) const
+  {}
+  void OutputSearchGraphSLF() const
+  {}
+  void OutputSearchGraphHypergraph() const
+  {}
+
  private:
   void InitializeRuleMatchers();
 
@@ -52,7 +71,16 @@ class Manager
 
   void RecombineAndSort(const std::vector<SHyperedge*> &, SVertexStack &);
 
-  const TreeInput &m_source;
+  // output
+  void OutputNBestList(OutputCollector *collector,
+      const Moses::Syntax::KBestExtractor::KBestVec &nBestList,
+      long translationId) const;
+  std::size_t OutputAlignmentNBest(Alignments &retAlign,
+      const Moses::Syntax::KBestExtractor::Derivation &derivation,
+      std::size_t startTarget) const;
+  std::size_t CalcSourceSize(const Syntax::KBestExtractor::Derivation &d) const;
+
+  const TreeInput &m_treeSource;
   InputForest m_inputForest;
   T2S::PVertexToStackMap m_stackMap;
   std::set<Word> m_oovs;
