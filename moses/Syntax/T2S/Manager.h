@@ -6,8 +6,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
-#include "moses/BaseManager.h"
 #include "moses/Syntax/KBestExtractor.h"
+#include "moses/Syntax/Manager.h"
 #include "moses/Syntax/SVertexStack.h"
 #include "moses/TreeInput.h"
 #include "moses/Word.h"
@@ -21,15 +21,13 @@ namespace Moses
 namespace Syntax
 {
 
-struct PVertex;
-class SDerivation;
 struct SHyperedge;
 
 namespace T2S
 {
 
 template<typename RuleMatcher>
-class Manager : public BaseManager
+class Manager : public Syntax::Manager
 {
  public:
   Manager(const TreeInput &);
@@ -44,25 +42,7 @@ class Manager : public BaseManager
       std::vector<boost::shared_ptr<KBestExtractor::Derivation> > &kBestList,
       bool onlyDistinct=false) const;
 
-  const std::set<Word> &GetUnknownWords() const { return m_oovs; }
-
-  void OutputNBest(OutputCollector *collector) const;
-  void OutputLatticeSamples(OutputCollector *collector) const
-  {}
-  void OutputAlignment(OutputCollector *collector) const
-  {}
   void OutputDetailedTranslationReport(OutputCollector *collector) const;
-  void OutputUnknowns(OutputCollector *collector) const;
-  void OutputDetailedTreeFragmentsTranslationReport(OutputCollector *collector) const
-  {}
-  void OutputWordGraph(OutputCollector *collector) const
-  {}
-  void OutputSearchGraph(OutputCollector *collector) const
-  {}
-  void OutputSearchGraphSLF() const
-  {}
-  void OutputSearchGraphHypergraph() const
-  {}
 
  private:
   void InitializeRuleMatchers();
@@ -71,19 +51,9 @@ class Manager : public BaseManager
 
   void RecombineAndSort(const std::vector<SHyperedge*> &, SVertexStack &);
 
-  // output
-  void OutputNBestList(OutputCollector *collector,
-      const Moses::Syntax::KBestExtractor::KBestVec &nBestList,
-      long translationId) const;
-  std::size_t OutputAlignmentNBest(Alignments &retAlign,
-      const Moses::Syntax::KBestExtractor::Derivation &derivation,
-      std::size_t startTarget) const;
-  std::size_t CalcSourceSize(const Syntax::KBestExtractor::Derivation &d) const;
-
   const TreeInput &m_treeSource;
   InputTree m_inputTree;
   PVertexToStackMap m_stackMap;
-  std::set<Word> m_oovs;
   boost::shared_ptr<RuleTrie> m_glueRuleTrie;
   std::vector<boost::shared_ptr<RuleMatcher> > m_ruleMatchers;
   RuleMatcher *m_glueRuleMatcher;
